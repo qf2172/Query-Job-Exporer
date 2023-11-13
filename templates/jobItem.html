@@ -1,0 +1,37 @@
+<div  class="border-bottom row" style="margin-bottom: 16px; padding-bottom: 8px;">
+    <div class="col-11">
+        <h4 style="color:rgb(120, 120, 120); margin-bottom: 4px;">{{job['job_title']}}</h4>
+        <div>
+            <b>Url:</b> {{job['url']}}
+        </div>
+        {% if 'min_salary' in job and job['min_salary'] != 0  %}
+        <div>
+            <b>Min Salary:</b> {{job['min_salary']}}
+        </div>
+        {% endif %}
+
+        {% if 'max_salary' in job and job['max_salary'] != 0  %}
+        <div>
+            <b>Max Salary:</b> {{job['max_salary']}}
+        </div>
+        {% endif %}
+
+        {% if job['duration'] != 0 %}
+        <div>
+            <b>Duration:</b> {{job['duration']}}
+        </div>
+        {% endif %}
+        
+        {% if job['required_skills'] %}
+        <div>
+            <b>Required Skills:</b> {{ job['required_skills'] }}
+        </div>
+        {% endif %}
+
+
+    </div>
+    <div class="col-1">
+        <a href="mailto:hello@jovian.ai?subject=Application for {{job['title']}}" type="button" class="btn btn-outline-primary float-right align-middle">Apply</a>
+    </div>
+    
+</div>

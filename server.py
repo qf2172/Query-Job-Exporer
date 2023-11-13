@@ -16,7 +16,7 @@ from flask import Flask, request, render_template, g, redirect, Response, abort
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
-
+app.debug = True
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -45,15 +45,15 @@ conn = engine.connect()
 
 # The string needs to be wrapped around text()
 
-conn.execute(text("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);"""))
-conn.execute(text("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');"""))
+#conn.execute(text("""CREATE TABLE IF NOT EXISTS test (
+ # id serial,
+  #name text
+#);"""))
+#conn.execute(text("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');"""))
 
 # To make the queries run, we need to add this commit line
 
-conn.commit() 
+#conn.commit() 
 
 @app.before_request
 def before_request():
@@ -116,22 +116,26 @@ def index():
   #
   # example of a database query 
   #
-  cursor = g.conn.execute(text("SELECT name FROM test"))
+  cursor = g.conn.execute(text("SELECT job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration FROM Job_Post"))
   g.conn.commit()
 
   # 2 ways to get results
 
   # Indexing result by column number
-  names = []
-  for result in cursor:
-    names.append(result[0])  
+  #names = []
+  #for result in cursor:
+    #names.append(result[1])  
 
   # Indexing result by column name
-  names = []
-  results = cursor.mappings().all()
-  for result in results:
-    names.append(result["name"])
+  #names = []
+  #results = cursor.mappings().all()
+  #for result in results:
+  #  names.append(result["job_title"])
+  #cursor.close()
+  jobItems = cursor.mappings().all()
+  #print(jobItems)
   cursor.close()
+
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -159,9 +163,7 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
-
-
+  context = dict(data = jobItems)
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
