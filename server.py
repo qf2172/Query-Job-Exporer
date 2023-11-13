@@ -12,11 +12,12 @@ import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, abort
-
+from flask import Flask, request, render_template, g, redirect, Response, abort, url_for, flash, session
+import uuid
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 app.debug = True
+app.secret_key = 'your_secret_key'
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -98,6 +99,13 @@ def teardown_request(exception):
 #
 @app.route('/')
 def index():
+    if 'userEmail' in session:
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('index.html')
+
+@app.route('/dashboard')
+def dashboard():
   """
   request is a special object that Flask provides to access web request information:
 
@@ -168,7 +176,7 @@ def index():
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  return render_template("dashboard.html", **context)
 
 #
 # This is an example of a different path.  You can see it at:
@@ -184,20 +192,58 @@ def another():
 
 
 # Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add(): 
-  name = request.form['name']
-  params_dict = {"name":name}
-  g.conn.execute(text('INSERT INTO test(name) VALUES (:name)'), params_dict)
-  g.conn.commit()
-  return redirect('/')
+#@app.route('/add', methods=['POST'])
+#def add(): 
+  #name = request.form['name']
+  #params_dict = {"name":name}
+  #g.conn.execute(text('INSERT INTO test(name) VALUES (:name)'), params_dict)
+  #g.conn.commit()
+  #return redirect('/')
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    abort(401)
-    this_is_never_executed()
+    if request.method == 'POST':
+        userEmail = request.form['userEmail']
+        cursor = g.conn.execute(text("SELECT email FROM Applicants"))
+        g.conn.commit()
+        emails = cursor.mappings().all()
+        cursor.close()
+        email_list = [email['email'] for email in emails]
+        print(emails)
+        if userEmail in email_list:
+            session['userEmail'] = userEmail
+            return redirect(url_for('index'))
+        flash('Invalid userEmail')
+    return render_template('login.html')
+    
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        userEmail = request.form['userEmail']
+        cursor = g.conn.execute(text("SELECT email FROM Applicants"))
+        g.conn.commit()
+        emails = cursor.mappings().all()
+        email_list = [email['email'] for email in emails]
+        print(emails)
+        cursor.close()
+        if userEmail in email_list:
+            flash('User Email already exists.')
+            return redirect(url_for('login'))
+        person_id = str(uuid.uuid4()).replace('-', '')[:20]
+        params_dict = {"person_id":person_id,"email":userEmail}
+        cursor1 = g.conn.execute(text('INSERT INTO Applicants(person_id,email) VALUES (:person_id,:email)'), params_dict)
+        g.conn.commit()
+        cursor1.close()
+        flash('Successfully sign up, please log in.')
+        return redirect(url_for('login'))
+    return render_template('signup.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('userEmail', None)  # 移除 session 中的用户名，实现用户登出
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
   import click
