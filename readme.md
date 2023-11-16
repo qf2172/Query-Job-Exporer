@@ -1,12 +1,12 @@
-#4111 Project1 Part3
+# 4111 Project1 Part3
 ***
-##Brief Description
+## Brief Description
 ---
-**QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.**
+**QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
 
 Our users will have the flexibility to fine-tune their job searches using a variety of filter options, including location, company, and job title. Moreover, our application incorporates a sophisticated tracking system that enables users to maintain a comprehensive
-history of their previous job applications and offers job recommendations.
-##Built With
+history of their previous job applications and offers job recommendations.**
+## Built With
 ---
 + Frontend
   - HTML/CSS
@@ -15,17 +15,20 @@ history of their previous job applications and offers job recommendations.
   - PostgreSQL
   - Python Flask
 ---
-##Screen Shots
-###Home Page/Sign Up/Log in
+## Screen Shots
+
+### Home Page/Sign Up/Log in
 ![homePage](static/homepage.png)
 ![login](static/loginPage.png)
 * Use the existing user email to login: 
 Charisse_Lowery@outlook.com
 * You can also use your own email to sign up, but you will find your Track page is empty. You can apply some on Open Positions and recheck the Track Page.
-###Overview
+
+### Overview
 ![overview](static/overviewPage.png)
 * Once a user login successfully, he or she will see this page.
-###My Profile
+
+### My Profile
 ![myProfile](static/myProfile.png)
 * User can click the profile image and go to see their profile info. 
 * User can click the edit to do some modifications to their profile.
@@ -35,7 +38,8 @@ Charisse_Lowery@outlook.com
 
 ![myProfileSave](static/savemyProfilePage.png)
 * User can click save to save it successfully.
-###Open Positions
+
+### Open Positions
 
 ![openPosition](static/openPositionPage.png)
 * User can click the apply button to record that they have applied to that job.
@@ -48,7 +52,8 @@ Charisse_Lowery@outlook.com
   - HR: We list the hr name and contact info on the job info page.
   - Employee/Referral: (Or we need a Connect Part, let the user to get referral from the employee???? a little complicated for me)
   - Comp_Indus Industry: ? in the search function? or in Connect Part
-###Track Module
+
+### Track Module
 ![track](static/trackPage.png)
 * The user can click the edit to go to the editApplyRecord.html page to edit and save. 
 * The user can also click the delete button to delete the application.
@@ -56,9 +61,10 @@ Charisse_Lowery@outlook.com
 ![track](static/trackEdit.png)
 * The user can edit the status, start date and last update date of the application.
 * The user can click button save to save the modification and click back to go to the track page. The track page will reload it.
-###Recommendation Module
 
-###Connect Module?
+### Recommendation Module
+
+### Connect Module?
 
 
 
