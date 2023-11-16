@@ -1,20 +1,16 @@
 # 4111 Project1 Part3
-***
 ## Brief Description
----
-**QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
+** QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
 
 Our users will have the flexibility to fine-tune their job searches using a variety of filter options, including location, company, and job title. Moreover, our application incorporates a sophisticated tracking system that enables users to maintain a comprehensive
-history of their previous job applications and offers job recommendations.**
+history of their previous job applications and offers job recommendations. **
 ## Built With
----
 + Frontend
   - HTML/CSS
   - JavaScript
 + Backend
   - PostgreSQL
   - Python Flask
----
 ## Screen Shots
 
 ### Home Page/Sign Up/Log in
@@ -23,6 +19,7 @@ history of their previous job applications and offers job recommendations.**
 * Use the existing user email to login: 
 Charisse_Lowery@outlook.com
 * You can also use your own email to sign up, but you will find your Track page is empty. You can apply some on Open Positions and recheck the Track Page.
+* Applicants table included.
 
 ### Overview
 ![overview](static/overviewPage.png)
@@ -38,6 +35,7 @@ Charisse_Lowery@outlook.com
 
 ![myProfileSave](static/savemyProfilePage.png)
 * User can click save to save it successfully.
+* Applicants Table included
 
 ### Open Positions
 
@@ -54,6 +52,7 @@ Charisse_Lowery@outlook.com
   - Comp_Indus Industry: ? in the search function? or in Connect Part
 
 ### Track Module
+
 ![track](static/trackPage.png)
 * The user can click the edit to go to the editApplyRecord.html page to edit and save. 
 * The user can also click the delete button to delete the application.
@@ -61,6 +60,8 @@ Charisse_Lowery@outlook.com
 ![track](static/trackEdit.png)
 * The user can edit the status, start date and last update date of the application.
 * The user can click button save to save the modification and click back to go to the track page. The track page will reload it.
+
+* Apply table, Job_Post table included
 
 ### Recommendation Module
 

@@ -318,7 +318,7 @@ def recommendations():
      applied_jobs = []
      )
 
-  return render_template("recommendations.html")
+  return render_template("recommendations.html",**context)
 
 @app.route('/aboutus')
 def aboutus():
