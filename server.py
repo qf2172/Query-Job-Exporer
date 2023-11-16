@@ -15,7 +15,7 @@ from sqlalchemy.pool import NullPool
 from flask import Flask, jsonify,request, render_template, g, redirect, Response, abort, url_for, flash, session
 import uuid
 from datetime import datetime
-from sentence_transformers import SentenceTransformer, util
+#from sentence_transformers import SentenceTransformer, util
 
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -274,22 +274,22 @@ def recommendations():
         combined += " " + job['preferred_skills']
     combined_strings.append(combined)
     # Generate embeddings
-  target_embedding = model.encode(target_string, convert_to_tensor=True)
-  job_embeddings = model.encode(combined_strings, convert_to_tensor=True)
+  #target_embedding = model.encode(target_string, convert_to_tensor=True)
+  #job_embeddings = model.encode(combined_strings, convert_to_tensor=True)
 
   # Calculate cosine similarities
-  cosine_scores = util.pytorch_cos_sim(target_embedding, job_embeddings)
+  #cosine_scores = util.pytorch_cos_sim(target_embedding, job_embeddings)
 
   # Find the top 5 most similar jobs
-  top_5_indices = cosine_scores.argsort(descending=True)[0][:5]
+  #top_5_indices = cosine_scores.argsort(descending=True)[0][:5]
 
-  top_5_jobs = [jobMap[i] for i in top_5_indices]
-  context = dict(
-     data = top_5_jobs,
-     applied_jobs = []
-     )
+  #top_5_jobs = [jobMap[i] for i in top_5_indices]
+  #context = dict(
+     #data = top_5_jobs,
+     #applied_jobs = []
+     #)
 
-  return render_template("recommendations.html",**context)
+  return render_template("recommendations.html")
 
 @app.route('/aboutus')
 def aboutus():
