@@ -1,0 +1,59 @@
+/* CSS 样式 */
+
+nav {
+    height: 100%;
+    width: 300px; /* 导航栏的宽度 */
+    position: fixed; /* 固定位置 */
+    z-index: 1; /* 确保 nav 在页面其他内容之上 */
+    top: 0; /* 从顶部开始 */
+    left: 0; /* 在左侧 */
+    background-color: #111; /* 背景颜色 */
+    overflow-x: hidden; /* 隐藏水平滚动条 */
+    padding-top: 20px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    padding: 8px;
+    text-align: left;
+}
+
+nav ul li a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: white;
+    display: block;
+}
+
+nav ul li a:hover {
+    color: #f1f1f1;
+}
+
+.logout-link a {
+    font-size: 0.8em; /* 较小的字体大小 */
+    color: #555; /* 淡色字体 */
+    padding-top: 10px; /* 顶部填充，根据需要调整 */
+}
+
+.logout-link a:hover {
+    color: #333; /* 鼠标悬停时的字体颜色 */
+}
+.profile-link img {
+    height: 50%; /* 设置图像高度为导航栏高度的 25% */
+    width: 150px; /* 控制图像宽度 */
+    height: 150px; /* 控制图像高度 */
+    border-radius: 50%; /* 使图像成为圆形 */
+    object-fit: cover; /* 保证图像内容被适当裁剪以填充容器 */
+    vertical-align: middle; /* 纵向居中 */
+}
+
+.profile-link {
+    display: flex;
+    justify-content: center; /* 横向居中 */
+    align-items: center; /* 纵向居中 */
+}

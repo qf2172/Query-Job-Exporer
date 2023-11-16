@@ -12,8 +12,12 @@ import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, abort, url_for, flash, session
+from flask import Flask, jsonify,request, render_template, g, redirect, Response, abort, url_for, flash, session
 import uuid
+from datetime import datetime
+from sentence_transformers import SentenceTransformer, util
+
+
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 app.debug = True
@@ -99,7 +103,7 @@ def teardown_request(exception):
 #
 @app.route('/')
 def index():
-    if 'userEmail' in session:
+    if 'personID' in session:
         return redirect(url_for('dashboard'))
     else:
         return render_template('index.html')
@@ -119,77 +123,207 @@ def dashboard():
 
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
-
-
-  #
-  # example of a database query 
-  #
-  cursor = g.conn.execute(text("SELECT job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration FROM Job_Post"))
+  cursor = g.conn.execute(text("SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration FROM Job_Post"))
   g.conn.commit()
-
-  # 2 ways to get results
-
-  # Indexing result by column number
-  #names = []
-  #for result in cursor:
-    #names.append(result[1])  
-
-  # Indexing result by column name
-  #names = []
-  #results = cursor.mappings().all()
-  #for result in results:
-  #  names.append(result["job_title"])
-  #cursor.close()
   jobItems = cursor.mappings().all()
-  #print(jobItems)
   cursor.close()
-
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #
-  #     # creates a <div> tag for each element in data
-  #     # will print:
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = jobItems)
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
+  # 查询当前用户已应聘的职位
+  cursor = g.conn.execute(text("SELECT job_id FROM Apply WHERE person_id = :person_id"), {'person_id': session.get('personID')})
+  applied_jobsmap = cursor.mappings().all()
+  applied_jobs = [row['job_id'] for row in applied_jobsmap]
+  cursor.close()
+  # 将查询结果传递给前端
+  context = dict(
+      data=jobItems[:10],
+      applied_jobs=applied_jobs
+  )
   return render_template("dashboard.html", **context)
 
-#
-# This is an example of a different path.  You can see it at:
-#
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("another.html")
+@app.route('/apply-job', methods=['POST'])
+def apply_job():
+    if 'personID' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
 
+    data = request.get_json()
+    job_id = data.get('job_id')
+    person_id = session['personID']
+    application_id = str(uuid.uuid4()).replace('-', '')[:20]  # 生成唯一的 application ID
+    current_date = datetime.now().date()
+
+    # 插入新的应聘记录到 APPLY 表
+    try:
+        g.conn.execute(text("""
+            INSERT INTO APPLY (application_id, job_id, person_id, start_date, status, last_update_date)
+            VALUES (:application_id, :job_id, :person_id, :start_date, 'Pending', :last_update_date)
+        """), {
+            'application_id': application_id,
+            'job_id': job_id,
+            'person_id': person_id,
+            'start_date': current_date,
+            'last_update_date': current_date
+        })
+        g.conn.commit()
+        return jsonify({'applied': True})
+    except Exception as e:
+        g.conn.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/jobinfo/<job_id>')
+def jobinfo(job_id):
+    return render_template('jobinfo.html')
+   
+@app.route('/track')
+def track():
+  sql_query = text("""
+    SELECT j.job_id, j.job_title, a.start_date, a.status, a.last_update_date, a.application_id 
+    FROM Job_Post j, Apply a 
+    WHERE a.person_id = :person_id 
+    AND j.job_id = a.job_id
+""")
+  
+  cursor = g.conn.execute(sql_query,{'person_id':session.get('personID')})
+  g.conn.commit()
+  applyRecord = cursor.mappings().all()
+  cursor.close()
+  context = dict(data = applyRecord)
+  return render_template("track.html",**context)
+
+@app.route('/editApplyRecord/<application_id>')
+def editApplyRecord(application_id):
+    cursor = g.conn.execute(text("SELECT * FROM Apply WHERE application_id = :application_id"), {'application_id': application_id})
+    application = cursor.fetchone()
+    cursor.close()
+    if application is not None:
+      application = dict(data = application)
+    if application is None:
+        return "Application record not found", 404
+
+    return render_template('editApplyRecord.html', **application)
+
+@app.route('/saveApplyRecord/<application_id>', methods=['POST'])
+def saveApplyRecord(application_id):
+    status = request.form['status']
+    start_date = request.form['start_date']
+    last_update_date = request.form['last_update_date']
+    try:
+        g.conn.execute(text("""
+            UPDATE Apply SET status = :status, start_date = :start_date, last_update_date = :last_update_date WHERE application_id = :application_id
+        """), {'status': status, 'start_date': start_date, 'last_update_date': last_update_date, 'application_id': application_id})
+        g.conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        g.conn.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/deleteApplyRecord/<application_id>', methods=['POST'])
+def deleteApplyRecord(application_id):
+    try:
+        g.conn.execute(text("DELETE FROM Apply WHERE application_id = :application_id"), {'application_id': application_id})
+        g.conn.commit()
+        return '', 204  # 返回 204 No Content 表示成功删除
+    except Exception as e:
+        print(e)  # 在生产环境中，应该使用更合适的错误处理
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/addApplyRecord/<application_id>')
+def addApplyRecord(application_id):
+   return render_template('addApplyRecord.html')
+
+@app.route('/recommendations')
+def recommendations():
+  print("-----")
+  print(session.get('personID'))
+  sql_query = text("""
+    SELECT j.job_id, j.job_title, j.required_skills, j.preferred_skills
+    FROM Job_Post j, Apply a 
+    WHERE a.person_id = :person_id 
+    AND j.job_id = a.job_id
+""")
+  cursor = g.conn.execute(sql_query,{'person_id':session.get('personID')})
+  g.conn.commit()
+  results_list = cursor.fetchall()
+  cursor.close()
+  print(results_list)
+  extracted_values = [[value for value in tup[1:] if value is not None] for tup in results_list]
+  job_list = [tup[0] for tup in results_list]
+  # Join the inner lists into strings and then join these strings into one large string
+  target_string = ' '.join([' '.join(sublist) for sublist in extracted_values])
+  print(job_list)
+  print(target_string)
+  if job_list:
+    job_tuple = tuple(job_list)
+  else:
+    # Handle the case where job_list is empty
+    job_tuple = ('dummy_value',)
+  model = SentenceTransformer('all-MiniLM-L6-v2')
+  sql_query = text("""
+    SELECT *
+    FROM Job_Post j
+    where j.job_id not in :jobtuple
+""")
+  cursor = g.conn.execute(sql_query,{'jobtuple':job_tuple})
+  jobMap = cursor.mappings().all()
+  g.conn.commit()
+  cursor.close()
+  combined_strings = []
+  for job in jobMap:
+    combined = job['job_title']
+    if job['required_skills']:
+        combined += " " + job['required_skills']
+    if job['preferred_skills']:
+        combined += " " + job['preferred_skills']
+    combined_strings.append(combined)
+    # Generate embeddings
+  target_embedding = model.encode(target_string, convert_to_tensor=True)
+  job_embeddings = model.encode(combined_strings, convert_to_tensor=True)
+
+  # Calculate cosine similarities
+  cosine_scores = util.pytorch_cos_sim(target_embedding, job_embeddings)
+
+  # Find the top 5 most similar jobs
+  top_5_indices = cosine_scores.argsort(descending=True)[0][:5]
+
+  top_5_jobs = [jobMap[i] for i in top_5_indices]
+  context = dict(
+     data = top_5_jobs,
+     applied_jobs = []
+     )
+
+  return render_template("recommendations.html",**context)
+
+@app.route('/aboutus')
+def aboutus():
+  return render_template("aboutus.html")
+@app.route('/myprofile')
+def myprofile():
+  sql_query = text('SELECT email,phone,address,websites,resume_url from Applicants where person_id = :person_id')
+  cursor = g.conn.execute(sql_query,{'person_id':session.get('personID')})
+  g.conn.commit()
+  profile = cursor.fetchone()
+  cursor.close()
+  context = dict(data = profile)
+  return render_template("myprofile.html", **context)
+
+@app.route('/saveProfile', methods=['POST'])
+def saveProfile():
+  try:
+    email = request.form['email']
+    phone = request.form['phone']
+    address = request.form['address']
+    websites = request.form['websites']
+    resume_url = request.form['resume_url']
+    print(email, phone, address, websites, resume_url, session.get('personID'))
+    if not email:
+      return jsonify({'message': 'Email is required.'}), 400
+    g.conn.execute(text("""
+        UPDATE Applicants SET email = :email, phone = :phone, address = :address, websites = :websites, resume_url = :resume_url WHERE person_id = :person_id
+    """), {'email': email, 'phone': phone, 'address': address, 'websites': websites, 'resume_url': resume_url,'person_id': session.get('personID')})
+    g.conn.commit()
+    return jsonify({'message': 'Profile updated successfully.'}), 200
+  except Exception as e:
+    g.conn.rollback()
+    print(str(e))
+    return jsonify({'error': str(e)}), 500
 
 # Example of adding new data to the database
 #@app.route('/add', methods=['POST'])
@@ -205,14 +339,14 @@ def another():
 def login():
     if request.method == 'POST':
         userEmail = request.form['userEmail']
-        cursor = g.conn.execute(text("SELECT email FROM Applicants"))
+        cursor = g.conn.execute(text("SELECT DISTINCT * FROM Applicants where email=:user_email"),{'user_email':userEmail})
         g.conn.commit()
-        emails = cursor.mappings().all()
+        applicantsInfo = cursor.mappings().all()
         cursor.close()
-        email_list = [email['email'] for email in emails]
-        print(emails)
-        if userEmail in email_list:
-            session['userEmail'] = userEmail
+        person_id = [person['person_id'] for person in applicantsInfo]
+        print(person_id)
+        if len(person_id)!=0:
+            session['personID'] = person_id[0]
             return redirect(url_for('index'))
         flash('Invalid userEmail')
     return render_template('login.html')
@@ -242,7 +376,7 @@ def signup():
 
 @app.route('/logout')
 def logout():
-    session.pop('userEmail', None)  # 移除 session 中的用户名，实现用户登出
+    session.pop('personID', None)  # 移除 session 中的用户名，实现用户登出
     return redirect(url_for('index'))
 
 if __name__ == "__main__":

@@ -1,5 +1,53 @@
-<div  class="border-bottom row" style="margin-bottom: 16px; padding-bottom: 8px;">
-    <div class="col-11">
+<style>
+    .border-bottom {
+        border: 1px solid rgba(255, 255, 255, 0.2); /* 更细的边框 */
+        background: rgba(255, 255, 255, 0.1); /* 轻微透明的背景提亮 */
+        backdrop-filter: blur(5px); /* 细微的模糊效果 */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 提亮的阴影效果 */
+        margin-bottom: 1rem; /* 保持间距 */
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0.75rem; /* 增加内边距 */
+        border-radius: 0.5rem; /* 圆角效果 */
+        color: #fff; /* 文本颜色为白色 */
+    }
+    .align-middle {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        height: 100%;
+    }
+    .btn {
+        width: 100px; 
+        height: 40px; 
+        margin: 0.5rem 0; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        background: rgba(255, 255, 255, 0.2); 
+        backdrop-filter: blur(5px); 
+        border: 1px solid rgba(255, 255, 255, 0.3); 
+        border-radius: 0.25rem; 
+        color: #fff;
+        cursor: pointer; 
+        transition: all 0.3s ease;
+        text-align: center; 
+    }
+    .btn:hover {
+        background-color: #d06cd1; 
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    }
+
+ 
+    .btn:active {
+        background-color: #d176d3;
+        transform: translateY(-2px);
+        transform: translateY(1px); 
+    }
+</style>
+<div  class="border-bottom row" style="margin-bottom: 16px; padding-bottom: 20px;">
+    <div class="col-10">
         <h4 style="color:rgb(120, 120, 120); margin-bottom: 4px;">{{job['job_title']}}</h4>
         <div>
             <b>Url:</b> {{job['url']}}
@@ -30,8 +78,31 @@
 
 
     </div>
-    <div class="col-1">
-        <a href="mailto:hello@jovian.ai?subject=Application for {{job['title']}}" type="button" class="btn btn-outline-primary float-right align-middle">Apply</a>
-    </div>
-    
+    <div class="col-2 align-middle">
+        {% if job['job_id'] in applied_jobs %}
+            <button class="btn" disabled>Applied</button>
+        {% else %}
+            <button onclick="applyForJob('{{ job['job_id'] }}', this)" class="btn">Apply</button>
+        {% endif %}
+    </div>   
 </div>
+
+<script>
+function applyForJob(jobId, button) {
+    fetch('/apply-job', {
+    method: 'POST',
+    body: JSON.stringify({ job_id: jobId }),
+    headers: {
+        'Content-Type': 'application/json',
+    }
+    })
+    .then(response => response.json())
+    .then(data => {
+    if (data.applied) {
+        // 更新按钮状态为已应聘
+        button.textContent = 'Applied';
+        button.disabled = true; // 禁用按钮
+    }
+    });
+}
+</script>

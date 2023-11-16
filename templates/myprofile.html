@@ -1,0 +1,156 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>QuanFang Page</title>
+    <style>
+  /* 应用于整个页面的渐变背景，使用更深的颜色和醒目的过渡 */
+      .form-control-plaintext {
+        color: #fff; /* 字体颜色改为白色 */
+        background: transparent; /* 背景透明 */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5); /* 底部边框 */
+        box-shadow: none; /* 移除阴影 */
+      }
+      body {
+        background: linear-gradient(to bottom, #333333, #dd33fa); 
+        color: #fff; 
+      }
+
+      /* 为container添加半透明效果和模糊背景，以及一些内边距 */
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 增强分割线的视觉效果 */
+      .title-divider {
+        border-bottom: none; 
+        height: 2px;
+        background: linear-gradient(to right, #ff758c, #ff7eb3);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      }
+
+      /* 修改玻璃卡片效果 */
+      .glass-card {
+        background: rgba(0, 0, 0, 0.6);
+        border: none;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+        border-radius: 1rem;
+        color: #fff;
+        overflow: hidden;
+      }
+
+      /* 居中卡片页脚按钮 */
+      .card-footer {
+        text-align: center;
+        padding: 1rem;
+        background: transparent;
+      }
+
+      /* 按钮样式 */
+      .btn-primary, .btn-success {
+        margin: 0 0.5rem;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      /* 按钮交互效果：悬浮和按下 */
+      .btn-primary:hover, .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.6);
+      }
+
+      .btn-primary:active, .btn-success:active {
+        transform: translateY(1px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'nav.html' %}
+    <div class="container" style="margin: 40px 60px 40px 360px; max-width: calc(100% - 420px);">
+        <h1 class="text-center mt-2 mb-4">Manage My Profile</h1>
+        <div class="card glass-card">
+          <div class="card-body">
+              <h3 class="card-title text-center">Personal Information</h3>
+              <div class="title-divider"></div>
+              <form id="profileForm">
+                <div class="row mb-3 justify-content-center">
+                  <label for="email" class="col-sm-2 col-form-label text-sm-start">Email:</label>
+                  <div class="col-sm-4">
+                      <input type="text" readonly class="form-control-plaintext" id="email" name="email" value="{{ data['email'] }}">
+                  </div>
+                </div>
+                <div class="row mb-3 justify-content-center">
+                  <label for="phone" class="col-sm-2 col-form-label text-sm-start">Phone:</label>
+                  <div class="col-sm-4">
+                      <input type="text" readonly class="form-control-plaintext" id="phone" name="phone" value="{{ data['phone'] }}">
+                  </div>
+                </div>
+                <div class="row mb-3 justify-content-center">
+                  <label for="address" class="col-sm-2 col-form-label text-sm-start">Address:</label>
+                  <div class="col-sm-4">
+                      <input type="text" readonly class="form-control-plaintext" id="address" name="address" value="{{ data['address'] }}">
+                  </div>
+                </div>
+                <div class="row mb-3 justify-content-center">
+                  <label for="websites" class="col-sm-2 col-form-label text-sm-start">Websites:</label>
+                  <div class="col-sm-4">
+                      <input type="text" readonly class="form-control-plaintext" id="websites" name="websites" value="{{ data['websites'] }}">
+                  </div>
+                </div>
+                <div class="row mb-3 justify-content-center">
+                  <label for="resume" class="col-sm-2 col-form-label text-sm-strat">Resume URL:</label>
+                  <div class="col-sm-4">
+                      <input type="text" readonly class="form-control-plaintext" id="resume_url" name="resume_url" value="{{ data['resume_url'] }}">
+                  </div>
+                </div>
+              </form>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="toggleEdit(true)">Edit</button>
+            <button class="btn btn-success" onclick="saveProfile()" style="display: none;">Save</button>
+          </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+  function toggleEdit(enable) {
+      var elements = document.querySelectorAll('#profileForm input');
+      elements.forEach(element => {
+          element.readOnly = !enable;
+      });
+
+      document.querySelector('.btn-primary').style.display = enable ? 'none' : 'block';
+      document.querySelector('.btn-success').style.display = enable ? 'block' : 'none';
+  }
+
+  function saveProfile() {
+    var formData = new FormData(document.getElementById('profileForm'));
+    fetch('/saveProfile', {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Server responded with a non-OK status');
+        }
+    }).then(data => {
+        alert(data.message);
+        toggleEdit(false);
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('Error updating profile');
+    });
+}
+
+</script>

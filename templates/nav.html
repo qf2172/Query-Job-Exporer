@@ -1,10 +1,13 @@
-<nav class="shadow p-3 mb-5 bg-body-tertiary rounded fixed-top">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">
-        <img src="/static/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-        Bootstrap
-      </a>
-      <a href="{{ url_for('logout') }}" class="nav-link">Log Out</a>
-    </div>
+<nav>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <ul>
+    <li class="profile-link">
+      <a href="/myprofile"><img src="{{ url_for('static', filename='your-image.jpg') }}" alt="My Profile"></a>
+    </li>
+    <li><a href="/dashboard">Open Positions</a></li>
+    <li><a href="/track">Track</a></li>
+    <li><a href="/recommendations">Recommendations</a></li>
+    <li><a href="/aboutus">About Us</a></li>
+    <li class="logout-link"><a href="/logout">Log Out</a></li>
+  </ul>
 </nav>
-<div style="height: 56px;"></div>

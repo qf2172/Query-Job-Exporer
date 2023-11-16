@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>QuanFang Page</title>
+  </head>
+  <body>
+    {% include 'nav.html' %}
+    <div class="container" style="margin: 40px 60px 40px 360px; max-width: calc(100% - 420px);">
+        <h1 class="text-center mt-2 mb-4">Edit Application Record</h1>
+        <form id="editForm">
+            <div class="form-group">
+                <label for="status">Status</label>
+                <input type="text" class="form-control" id="status" name="status" value="{{ data['status'] }}">
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ data['start_date']}}">
+            </div>
+            <div class="form-group">
+                <label for="last_update_date">Last Update Date</label>
+                <input type="date" class="form-control" id="last_update_date" name="last_update_date" value="{{ data['last_update_date']}}">
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+        <button onclick="redirectToDashboard()" class="btn btn-secondary">Back</button>
+        <div id="message"></div>
+    </div>
+    <script>
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/saveApplyRecord/' + "{{ data['application_id'] }}", {
+                method: 'POST',
+                body: new FormData(this),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('message').textContent = 'Save successfully';
+            });
+        });
+        function redirectToDashboard() {
+            window.location.href = '/track'; // 替换 '/dashboard' 为您想要重定向的路由
+        }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!-- applyItem.html -->
+<div class="row mb-3">
+    <div class="col-md-3 text-center">
+        <a href="/jobinfo/{{ applyRecord['job_id'] }}">{{ applyRecord['job_title'] }}</a>
+    </div>
+    <div class="col-md-2 text-center">
+        {{ applyRecord['start_date'] }}
+    </div>
+    <div class="col-md-2 text-center">
+        {{ applyRecord['last_update_date'] }}
+    </div>
+    <div class="col-md-2 text-center">
+        {{ applyRecord['status'] }}
+    </div>
+    <div class="col-md-3 text-center">
+        <a href="/editApplyRecord/{{ applyRecord['application_id'] }}" class="btn" style="margin-right: 10px;">Edit</a>
+        <button onclick="confirmDelete('{{ applyRecord['application_id'] }}')" class="btn">Delete</button>
+    </div>
+    
+</div>
+<script>
+function confirmDelete(applicationId) {
+    if (confirm("Are you sure you want to delete this record?")) {
+        fetch('/deleteApplyRecord/' + applicationId, { method: 'POST' })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert("Delete failed.");
+            }
+        });
+    }
+}
+</script>
+    
