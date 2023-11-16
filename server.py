@@ -15,8 +15,7 @@ from sqlalchemy.pool import NullPool
 from flask import Flask, jsonify,request, render_template, g, redirect, Response, abort, url_for, flash, session
 import uuid
 from datetime import datetime
-#from sentence_transformers import SentenceTransformer, util
-
+import utils
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -35,7 +34,7 @@ app.secret_key = 'your_secret_key'
 #     DATABASEURI = "postgresql://gravano:foobar@34.75.94.195/proj1part2"
 #
 DATABASEURI = "postgresql://yz4326:442835@34.74.171.121/proj1part2"
-
+RECOMMENDATION_CONFIG = utils.RECOMMENDATION_CONFIG
 
 #
 # This line creates a database engine that knows how to connect to the URI above.
@@ -233,11 +232,13 @@ def addApplyRecord(application_id):
 def recommendations():
   print("-----")
   print(session.get('personID'))
-  sql_query = text("""
+  sql_query = text(f"""
     SELECT j.job_id, j.job_title, j.required_skills, j.preferred_skills
     FROM Job_Post j, Apply a 
     WHERE a.person_id = :person_id 
     AND j.job_id = a.job_id
+    ORDER BY last_update_date DESC
+    LIMIT {RECOMMENDATION_CONFIG['job_based_num']}
 """)
   cursor = g.conn.execute(sql_query,{'person_id':session.get('personID')})
   g.conn.commit()
@@ -246,6 +247,10 @@ def recommendations():
   print(results_list)
   extracted_values = [[value for value in tup[1:] if value is not None] for tup in results_list]
   job_list = [tup[0] for tup in results_list]
+  job_based_required_skills = set(skill for job in results_list if job[2] is not None for skill in job[2].split(','))
+  job_based_preferred_skills = set(skill for job in results_list if job[3] is not None for skill in job[3].split(','))
+  job_based_title_word_bag = set(word for job in results_list if job[1] is not None for word in job[1].split(' '))
+  
   # Join the inner lists into strings and then join these strings into one large string
   target_string = ' '.join([' '.join(sublist) for sublist in extracted_values])
   print(job_list)
@@ -255,7 +260,7 @@ def recommendations():
   else:
     # Handle the case where job_list is empty
     job_tuple = ('dummy_value',)
-  model = SentenceTransformer('all-MiniLM-L6-v2')
+  # model = SentenceTransformer('all-MiniLM-L6-v2')
   sql_query = text("""
     SELECT *
     FROM Job_Post j
@@ -266,14 +271,24 @@ def recommendations():
   g.conn.commit()
   cursor.close()
   combined_strings = []
-  for job in jobMap:
-    combined = job['job_title']
-    if job['required_skills']:
-        combined += " " + job['required_skills']
-    if job['preferred_skills']:
-        combined += " " + job['preferred_skills']
-    combined_strings.append(combined)
+  # for job in jobMap:
+    # combined = job['job_title']
+    # if job['required_skills']:
+    #     combined += " " + job['required_skills']
+    # if job['preferred_skills']:
+    #     combined += " " + job['preferred_skills']
+    # combined_strings.append(combined)
+    # sim_score = utils.get_job_similarity(job, job_based_title_word_bag, job_based_required_skills.union(job_based_preferred_skills))
+  
+  top_5_jobs = sorted(jobMap, 
+                      key=lambda job: utils.get_job_similarity(job,
+                                                              job_based_title_word_bag,
+                                                              job_based_required_skills.union(job_based_preferred_skills)),
+                      reverse=True)[:5]
+
+
     # Generate embeddings
+
   #target_embedding = model.encode(target_string, convert_to_tensor=True)
   #job_embeddings = model.encode(combined_strings, convert_to_tensor=True)
 
@@ -288,6 +303,20 @@ def recommendations():
      #data = top_5_jobs,
      #applied_jobs = []
      #)
+  # target_embedding = model.encode(target_string, convert_to_tensor=True)
+  # job_embeddings = model.encode(combined_strings, convert_to_tensor=True)
+
+  # Calculate cosine similarities
+  # cosine_scores = util.pytorch_cos_sim(target_embedding, job_embeddings)
+
+  # Find the top 5 most similar jobs
+  # top_5_indices = cosine_scores.argsort(descending=True)[0][:5]
+
+  # top_5_jobs = [jobMap[i] for i in top_5_indices]
+  context = dict(
+     data = top_5_jobs,
+     applied_jobs = []
+     )
 
   return render_template("recommendations.html")
 
