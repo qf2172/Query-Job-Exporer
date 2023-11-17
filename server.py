@@ -109,6 +109,8 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
+  if 'personID' not in session:
+     return render_template('index.html')
   """
   request is a special object that Flask provides to access web request information:
 
@@ -126,12 +128,10 @@ def dashboard():
   g.conn.commit()
   jobItems = cursor.mappings().all()
   cursor.close()
-  # 查询当前用户已应聘的职位
   cursor = g.conn.execute(text("SELECT job_id FROM Apply WHERE person_id = :person_id"), {'person_id': session.get('personID')})
   applied_jobsmap = cursor.mappings().all()
   applied_jobs = [row['job_id'] for row in applied_jobsmap]
   cursor.close()
-  # 将查询结果传递给前端
   context = dict(
       data=jobItems[:10],
       applied_jobs=applied_jobs
@@ -173,6 +173,8 @@ def jobinfo(job_id):
    
 @app.route('/track')
 def track():
+  if 'personID' not in session:
+     return render_template('index.html')
   sql_query = text("""
     SELECT j.job_id, j.job_title, a.start_date, a.status, a.last_update_date, a.application_id 
     FROM Job_Post j, Apply a 
@@ -201,6 +203,8 @@ def editApplyRecord(application_id):
 
 @app.route('/saveApplyRecord/<application_id>', methods=['POST'])
 def saveApplyRecord(application_id):
+    if 'personID' not in session:
+      return render_template('index.html')
     status = request.form['status']
     start_date = request.form['start_date']
     last_update_date = request.form['last_update_date']
@@ -216,6 +220,8 @@ def saveApplyRecord(application_id):
 
 @app.route('/deleteApplyRecord/<application_id>', methods=['POST'])
 def deleteApplyRecord(application_id):
+    if 'personID' not in session:
+      return render_template('index.html')
     try:
         g.conn.execute(text("DELETE FROM Apply WHERE application_id = :application_id"), {'application_id': application_id})
         g.conn.commit()
@@ -230,6 +236,8 @@ def addApplyRecord(application_id):
 
 @app.route('/recommendations')
 def recommendations():
+  if 'personID' not in session:
+     return render_template('index.html')
   print("-----")
   print(session.get('personID'))
   sql_query = text(f"""
@@ -322,9 +330,13 @@ def recommendations():
 
 @app.route('/aboutus')
 def aboutus():
+  if 'personID' not in session:
+     return render_template('index.html')
   return render_template("aboutus.html")
 @app.route('/myprofile')
 def myprofile():
+  if 'personID' not in session:
+     return render_template('index.html')
   sql_query = text('SELECT email,phone,address,websites,resume_url from Applicants where person_id = :person_id')
   cursor = g.conn.execute(sql_query,{'person_id':session.get('personID')})
   g.conn.commit()
@@ -335,6 +347,8 @@ def myprofile():
 
 @app.route('/saveProfile', methods=['POST'])
 def saveProfile():
+  if 'personID' not in session:
+     return render_template('index.html')
   try:
     email = request.form['email']
     phone = request.form['phone']
@@ -376,6 +390,7 @@ def login():
         print(person_id)
         if len(person_id)!=0:
             session['personID'] = person_id[0]
+            flash('Login successful!', 'success')  # 添加成功消息
             return redirect(url_for('index'))
         flash('Invalid userEmail')
     return render_template('login.html')
@@ -408,6 +423,15 @@ def logout():
     session.pop('personID', None)  # 移除 session 中的用户名，实现用户登出
     return redirect(url_for('index'))
 
+@app.route('/deleteAccount')
+def deleteAccount():
+  person_id = session.get('personID')
+  if person_id:
+      cursor = g.conn.execute(text("delete from Applicants where person_id = :person_id"),{'person_id':person_id})
+      g.conn.commit()
+      cursor.close()
+      session.pop('personID', None)
+  return redirect('/')
 if __name__ == "__main__":
   import click
 

@@ -1,3 +1,10 @@
+<style>
+  .delete-account a {
+  font-size: 12px; /* 调整字体大小 */
+  color: #828080; /* 文字颜色 */
+  text-decoration: none; /* 去除下划线 */
+}
+</style>
 <nav>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <ul>
@@ -9,5 +16,15 @@
     <li><a href="/recommendations">Recommendations</a></li>
     <li><a href="/aboutus">About Us</a></li>
     <li class="logout-link"><a href="/logout">Log Out</a></li>
+    <li class="delete-account"><a href="#" onclick="confirmLogout()">Delete Account</a></li>
   </ul>
 </nav>
+<script>
+  function confirmLogout() {
+    var confirmation = confirm("Once you delete your account, you will lose all your information. Are you sure you want to delete your account?");
+    if (confirmation) {
+      window.location.href = '/deleteAccount'; 
+    }
+  }
+</script>
+  

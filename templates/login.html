@@ -2,6 +2,13 @@
 <html>
 <head>
     <title>Login</title>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <div>{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
 </head>
 <body>
     <h1>Login</h1>
@@ -9,5 +16,6 @@
         <input type="email" name="userEmail" placeholder="2259558831@qq.com" required>
         <input type="submit" value="Login">
     </form>
+    <a href="{{ url_for('signup') }}">Sign Up</a>
 </body>
 </html>
