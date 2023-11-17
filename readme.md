@@ -65,6 +65,11 @@ Charisse_Lowery@outlook.com
 
 ### Recommendation Module
 
+In this project, we have developed a recommender system designed to assist applicants in identifying more fitting job opportunities. Our recommendation process hinges on the analysis of an applicant's past applications. By leveraging information from previous applications, we identify the most analogous applicants and subsequently suggest jobs that align with the preferences and patterns of these similar candidates.
+
+Given that applicants may have submitted multiple applications, our system places emphasis on the active applications that have been most recently updated. This prioritization is rooted in the belief that these updated applications better reflect users' current preferences and provide more accurate indications of potential matches.
+
+To achieve this, our recommender system employs a metric of similarity based on job titles, required skills, and preferred skills across previously applied job posts and other opportunities. The weighted cosine similarity is the chosen method for measuring the similarity between two job posts. Notably, the three features—job titles, required skills, and preferred skills—are assigned distinct weights to mirror their varying importance in real-world scenarios. This approach ensures a nuanced and comprehensive assessment of similarity, contributing to more refined and relevant job recommendations.
 ### Connect Module?
 
 
