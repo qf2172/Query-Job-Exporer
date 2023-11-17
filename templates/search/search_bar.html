@@ -1,15 +1,53 @@
 <div class="job-search" >
     <div class="text-input">
-        <form action="/jobsearch" method="post">
+        <form action="/jobsearch" class="needs-validation" method="post">
             <input type="text" class="form-control-md" placeholder="Search for jobs" name="jobtitle" aria-label="Search for jobs">
             <input type="checkbox" class="form-check-input" id="use-regex" name="useregex">
             <label class="form-check-label" for="use-regex">Use Regex</label>
-            <input type="text" class="form-control-md" placeholder="Location" name="location" aria-label="Search for locations">
+            <input type="text" class="form-control-md" placeholder="Location" name="location" id="location-field" aria-label="Search for locations" oninput="searchlocation()" list="location-options">
+            <datalist id="location-options"></datalist>
             <!-- min salary -->
-            <input type="text" class="form-control-sm" placeholder="Min Salary" name="minsalary" aria-label="Set Min Salary">
+            <input type="number" class="form-control-sm" placeholder="Min Salary" name="minsalary" aria-label="Set Min Salary">
             <!-- max salary -->
-            <input type="text" class="form-control-sm" placeholder="Max Salary" name="maxsalary" aria-label="Set Max Salary">
+            <input type="number" class="form-control-sm" placeholder="Max Salary" name="maxsalary" aria-label="Set Max Salary">
             <button type="submit" class="btn btn-primary" >Search</button>
         </form>
     </div>
 </div>
+<script>
+    (() => {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        const forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    function searchlocation() {
+        var input = document.getElementById("location-field");
+        var xttp = new XMLHttpRequest();
+        xttp.onload = ()=>{
+            var options = document.getElementById("location-options");
+            options.innerHTML = "";
+            var data = JSON.parse(xttp.responseText);
+            console.log(xttp.responseText);
+            for (var i = 0; i < data.length; i++) {
+                var option = document.createElement("option");
+                option.value = data[i];
+                options.appendChild(option);
+            }
+        }
+        xttp.open("GET", "/getlocations?partial_location=" + input.value);
+        xttp.send();
+    }
+</script>

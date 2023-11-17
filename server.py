@@ -155,21 +155,26 @@ def jobsearch():
 
   # DEBUG: this is debugging code to see what request looks like
   print(request.form)
+
   if "useregex" not in request.form or request.form["useregex"] == "off":
     cursor = g.conn.execute(text(f"""
-                                SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
-                                FROM Job_Post
+                                SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
+                                FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
                                 WHERE job_title LIKE :job_title {'AND min_salary >= ' + request.form['minsalary'] if request.form['minsalary'] else ''} {'AND max_salary <= ' + request.form['maxsalary'] if request.form['maxsalary'] else ''}
-                                """), {
+                                        {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}    
+                            """), {
                                   'job_title': '%' + request.form['jobtitle'] + '%',
+                                  'location': request.form['location']
                                 })
   else:
     cursor = g.conn.execute(text(f"""
-                                SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
-                                FROM Job_Post
+                                SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
+                                FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
                                 WHERE job_title ~ :job_title  {'AND min_salary >= ' + request.form['minsalary'] if request.form['minsalary'] else ''} {'AND max_salary <= ' + request.form['maxsalary'] if request.form['maxsalary'] else ''}
+                                        {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}
                                 """), {
                                   'job_title': request.form['jobtitle'],
+                                  'location': request.form['location']
                                 })
   g.conn.commit()
   jobItems = cursor.mappings().all()
@@ -480,6 +485,17 @@ def deleteAccount():
       cursor.close()
       session.pop('personID', None)
   return redirect('/')
+
+# helper backend functions
+@app.route('/getlocations', methods=['GET'])
+def getLocations():
+  partial_location = request.args.get('partial_location')
+  cursor = g.conn.execute(*utils.get_location_search_ambiguous_query(partial_location))
+  g.conn.commit()
+  locations =[row["location"] for row in cursor.mappings().all()]
+  return jsonify(locations)
+
+
 if __name__ == "__main__":
   import click
 
