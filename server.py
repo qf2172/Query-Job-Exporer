@@ -138,6 +138,50 @@ def dashboard():
   )
   return render_template("dashboard.html", **context)
 
+@app.route('/jobsearch',methods=['GET','POST'])
+def jobsearch():
+  if 'personID' not in session:
+     return render_template('index.html')
+  """
+  request is a special object that Flask provides to access web request information:
+
+  request.method:   "GET" or "POST"
+  request.form:     if the browser submitted a form, this contains the data in the form
+  request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
+
+  See its API: https://flask.palletsprojects.com/en/2.0.x/api/?highlight=incoming%20request%20data
+
+  """
+
+  # DEBUG: this is debugging code to see what request looks like
+  print(request.form)
+  if "useregex" not in request.form or request.form["useregex"] == "off":
+    cursor = g.conn.execute(text("""
+                                SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
+                                FROM Job_Post
+                                WHERE job_title LIKE :job_title
+                                """), {'job_title': '%' + request.form['jobtitle'] + '%'})
+  else:
+    cursor = g.conn.execute(text("""
+                                SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
+                                FROM Job_Post
+                                WHERE job_title ~ :job_title
+                                """), {'job_title': request.form['jobtitle']})
+  g.conn.commit()
+  jobItems = cursor.mappings().all()
+  cursor.close()
+  cursor = g.conn.execute(text("SELECT job_id FROM Apply WHERE person_id = :person_id"), {'person_id': session.get('personID')})
+  applied_jobsmap = cursor.mappings().all()
+  applied_jobs = [row['job_id'] for row in applied_jobsmap]
+  cursor.close()
+  context = dict(
+      data=jobItems[:10],
+      applied_jobs=applied_jobs
+  )
+  return render_template("dashboard.html", **context)
+
+
+
 @app.route('/apply-job', methods=['POST'])
 def apply_job():
     if 'personID' not in session:
@@ -455,6 +499,6 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+    app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
 
   run()

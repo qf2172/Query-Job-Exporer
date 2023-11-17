@@ -1,0 +1,15 @@
+<div class="job-search" >
+    <div class="text-input">
+        <form action="/jobsearch" method="post">
+            <input type="text" class="form-control-md" placeholder="Search for jobs" name="jobtitle" aria-label="Search for jobs">
+            <input type="checkbox" class="form-check-input" id="use-regex" name="useregex">
+            <label class="form-check-label" for="use-regex">Use Regex</label>
+            <input type="text" class="form-control-md" placeholder="Location" name="location" aria-label="Search for locations">
+            <!-- min salary -->
+            <input type="text" class="form-control-sm" placeholder="Min Salary" name="minsalary" aria-label="Set Min Salary">
+            <!-- max salary -->
+            <input type="text" class="form-control-sm" placeholder="Max Salary" name="maxsalary" aria-label="Set Max Salary">
+            <button type="submit" class="btn btn-primary" >Search</button>
+        </form>
+    </div>
+</div>
