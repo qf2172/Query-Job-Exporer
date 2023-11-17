@@ -156,17 +156,21 @@ def jobsearch():
   # DEBUG: this is debugging code to see what request looks like
   print(request.form)
   if "useregex" not in request.form or request.form["useregex"] == "off":
-    cursor = g.conn.execute(text("""
+    cursor = g.conn.execute(text(f"""
                                 SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
                                 FROM Job_Post
-                                WHERE job_title LIKE :job_title
-                                """), {'job_title': '%' + request.form['jobtitle'] + '%'})
+                                WHERE job_title LIKE :job_title {'AND min_salary >= ' + request.form['minsalary'] if request.form['minsalary'] else ''} {'AND max_salary <= ' + request.form['maxsalary'] if request.form['maxsalary'] else ''}
+                                """), {
+                                  'job_title': '%' + request.form['jobtitle'] + '%',
+                                })
   else:
-    cursor = g.conn.execute(text("""
+    cursor = g.conn.execute(text(f"""
                                 SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
                                 FROM Job_Post
-                                WHERE job_title ~ :job_title
-                                """), {'job_title': request.form['jobtitle']})
+                                WHERE job_title ~ :job_title  {'AND min_salary >= ' + request.form['minsalary'] if request.form['minsalary'] else ''} {'AND max_salary <= ' + request.form['maxsalary'] if request.form['maxsalary'] else ''}
+                                """), {
+                                  'job_title': request.form['jobtitle'],
+                                })
   g.conn.commit()
   jobItems = cursor.mappings().all()
   cursor.close()
@@ -282,8 +286,8 @@ def addApplyRecord(application_id):
 def recommendations():
   if 'personID' not in session:
      return render_template('index.html')
-  print("-----")
-  print(session.get('personID'))
+  # print("-----")
+  # print(session.get('personID'))
   sql_query = text(f"""
     SELECT j.job_id, j.job_title, j.required_skills, j.preferred_skills
     FROM Job_Post j, Apply a 
@@ -296,7 +300,7 @@ def recommendations():
   g.conn.commit()
   results_list = cursor.fetchall()
   cursor.close()
-  print(results_list)
+  # print(results_list)
   extracted_values = [[value for value in tup[1:] if value is not None] for tup in results_list]
   job_list = [tup[0] for tup in results_list]
   job_based_required_skills = set(skill for job in results_list if job[2] is not None for skill in job[2].split(','))
@@ -305,8 +309,8 @@ def recommendations():
   
   # Join the inner lists into strings and then join these strings into one large string
   target_string = ' '.join([' '.join(sublist) for sublist in extracted_values])
-  print(job_list)
-  print(target_string)
+  # print(job_list)
+  # print(target_string)
   if job_list:
     job_tuple = tuple(job_list)
   else:
