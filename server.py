@@ -155,26 +155,31 @@ def jobsearch():
 
   # DEBUG: this is debugging code to see what request looks like
   print(request.form)
-
+  min_salary = request.form['minsalary'] if request.form['minsalary'] else 0
+  max_salary = request.form['maxsalary'] if request.form['maxsalary'] else 'Infinity'
   if "useregex" not in request.form or request.form["useregex"] == "off":
     cursor = g.conn.execute(text(f"""
                                 SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
                                 FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
-                                WHERE job_title LIKE :job_title {'AND min_salary >= ' + request.form['minsalary'] if request.form['minsalary'] else ''} {'AND max_salary <= ' + request.form['maxsalary'] if request.form['maxsalary'] else ''}
+                                WHERE job_title LIKE :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
                                         {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}    
                             """), {
                                   'job_title': '%' + request.form['jobtitle'] + '%',
-                                  'location': request.form['location']
+                                  'location': request.form['location'],
+                                  'min_salary': min_salary,
+                                  'max_salary': max_salary
                                 })
   else:
     cursor = g.conn.execute(text(f"""
                                 SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
                                 FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
-                                WHERE job_title ~ :job_title  {'AND min_salary >= ' + request.form['minsalary'] if request.form['minsalary'] else ''} {'AND max_salary <= ' + request.form['maxsalary'] if request.form['maxsalary'] else ''}
+                                WHERE job_title ~ :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
                                         {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}
                                 """), {
                                   'job_title': request.form['jobtitle'],
-                                  'location': request.form['location']
+                                  'location': request.form['location'],
+                                  'min_salary': min_salary,
+                                  'max_salary': max_salary
                                 })
   g.conn.commit()
   jobItems = cursor.mappings().all()
