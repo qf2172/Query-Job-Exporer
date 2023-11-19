@@ -1,0 +1,184 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>QuanFang Page</title>
+    <style>
+        body {
+        background: linear-gradient(to bottom, #9d50bb, #6e48aa); /* 深紫色到中紫色的渐变 */
+        color: #fff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+        background: rgba(255, 255, 255, 0.2); 
+        backdrop-filter: blur(10px); 
+        padding: 2rem 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin: 40px auto;
+        max-width: 800px; 
+        }
+
+        
+        h4 {
+        color: #fff;
+        }
+        b {
+        color: #ffcbdb; 
+        }
+        .tab-content {
+            display: none; 
+        }
+        .active-content {
+            display: block; 
+        }
+        .active {
+            background-color: #666;
+            color: white;
+        }
+    </style>
+  </head>
+  <body>
+    {% include 'nav.html' %}
+    <div class="container" style="margin: 40px 60px 40px 360px; max-width: calc(100% - 420px);">
+        <h1 class="text-center mt-2 mb-4">Job Details</h1>
+        <div class="tabs">
+            <button class="tab-link" id="defaultOpen" onclick="openTab(event, 'job')">Job Info</button>
+            <button class="tab-link" onclick="openTab(event, 'company')">Company Info</button>
+            <button class="tab-link" onclick="openTab(event, 'employee')">Employee</button>
+        </div>
+
+        <div id="job" class="tab-content active-content">
+            <h2>Job Title: {{job['job_title']}}</h2>
+            <div>
+                <b>Url:</b> {{job['url']}}
+            </div>
+            <div>
+                <b>Min Salary:</b> {{job['min_salary']}}
+            </div>
+            <div>
+                <b>Max Salary:</b> {{job['max_salary']}}
+            </div>
+            <div>
+                <b>Duration:</b> {{job['duration']}}
+            </div>
+            <div>
+                <b>Required Skills:</b> {{ job['required_skills'] }}
+            </div>
+            <div>
+                <b>Location:</b> {{job['country']}} {{job['state']}} {{job['city']}} 
+            </div>
+            <div>
+                <b>Census_info:</b> {{job['census_info']}} 
+            </div>
+            <div>
+                <b>Geo_info:</b> {{job['geo_info']}} 
+            </div>
+            <div>
+                <b>climate_info:</b> {{job['climate_info']}}
+            </div>
+            <div id="hr">
+                <hr>
+                <h4>
+                    HR Information
+                </h4>
+                <div>
+                    <b>email:</b> {{job['email']}}
+                </div>
+                <div>
+                    <b>phone:</b> {{job['phone']}}
+                </div>
+                <div>
+                    <b>address:</b> {{job['address']}}
+                </div>
+                <div>
+                    <b>websites:</b> {{job['websites']}}
+                </div>
+                <div>
+                    <b>company_role:</b> {{job['company_role']}}
+                </div>
+                <div>
+                    <b>status:</b> {{job['status']}}
+                </div>
+                <div>
+                    <b>last_active_time:</b> {{job['last_update_date']}}
+                </div>
+            </div>
+            <hr>
+        </div>
+
+        <div id="company" class="tab-content">
+            <h2>Company Name: {{company['company_name']}}</h2>
+            <div>
+                <b>Company Size:</b> {{company['company_size_level']}} 
+            </div>
+            <div>
+                <b>Sites:</b> {{company['sites']}} 
+            </div>
+            <div>
+                <b>Industry:</b> {{company['industry_name']}} 
+            </div>
+            <div>
+                <h4>Comapny Location</h4>
+                <div>
+                    <b>Location:</b> {{company['country']}} {{company['state']}} {{company['city']}} 
+                </div>
+                <div>
+                    <b>Census_info:</b> {{company['census_info']}} 
+                </div>
+                <div>
+                    <b>Geo_info:</b> {{company['geo_info']}} 
+                </div>
+                <div>
+                    <b>climate_info:</b> {{company['climate_info']}}
+                </div>
+            </div>
+        </div>
+
+       
+        <div id="employee" class="tab-content">
+            <h2>Employee</h2>
+            <div class="row mb-4 font-weight-bold" style="border-radius: 0.25rem;background: rgba(0, 0, 0, 1.0); ">
+                <div class="col-md-3 text-center">email</div>
+                <div class="col-md-3 text-center">phone</div>
+                <div class="col-md-2 text-center">role</div>
+                <div class="col-md-2 text-center">status</div>
+                <div class="col-md-2 text-center">lastdate</div>
+                <!--
+                    <div class="col-md-1 text-center">Intern</div>
+                <div class="col-md-1 text-center">NG</div>
+                <div class="col-md-1 text-center">Intern</div>
+                -->
+                
+              </div>
+            <div>
+                {% for employee in employees %}
+                {% include 'employeeItem.html'%}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    // JavaScript函数来切换标签
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none"; // 先隐藏所有内容
+      }
+      tablinks = document.getElementsByClassName("tab-link");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block"; // 显示特定的标签内容
+      evt.currentTarget.className += " active";
+    }
+    window.onload = function() {
+      openTab(new Event('click'), 'job');
+    };
+</script>

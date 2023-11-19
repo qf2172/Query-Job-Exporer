@@ -47,36 +47,10 @@
     }
 </style>
 <div  class="border-bottom row" style="margin-bottom: 16px; padding-bottom: 20px;">
-    <div class="col-10">
-        <h4 style="color:rgb(120, 120, 120); margin-bottom: 4px;">{{job['job_title']}}</h4>
-        <div>
-            <b>Url:</b> {{job['url']}}
-        </div>
-        {% if 'min_salary' in job and job['min_salary'] != 0  %}
-        <div>
-            <b>Min Salary:</b> {{job['min_salary']}}
-        </div>
-        {% endif %}
-
-        {% if 'max_salary' in job and job['max_salary'] != 0  %}
-        <div>
-            <b>Max Salary:</b> {{job['max_salary']}}
-        </div>
-        {% endif %}
-
-        {% if job['duration'] != 0 %}
-        <div>
-            <b>Duration:</b> {{job['duration']}}
-        </div>
-        {% endif %}
-        
-        {% if job['required_skills'] %}
-        <div>
-            <b>Required Skills:</b> {{ job['required_skills'] }}
-        </div>
-        {% endif %}
-
-
+    <div class="col-10 d-flex align-items-center justify-content-start">
+        <h4 style="color:rgb(120, 120, 120); margin-bottom: 4px;">
+            <a href="{{ url_for('jobinfo', job_id=job['job_id']) }}">{{ job['job_title'] }}</a>
+        </h4>
     </div>
     <div class="col-2 align-middle">
         {% if job['job_id'] in applied_jobs %}

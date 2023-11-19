@@ -1,7 +1,7 @@
 <!-- applyItem.html -->
 <div class="row mb-3">
     <div class="col-md-3 text-center">
-        <a href="/jobinfo/{{ applyRecord['job_id'] }}">{{ applyRecord['job_title'] }}</a>
+        <a href="{{ url_for('jobinfo', job_id=applyRecord['job_id']) }}">{{ applyRecord['job_title'] }}</a>
     </div>
     <div class="col-md-2 text-center">
         {{ applyRecord['start_date'] }}

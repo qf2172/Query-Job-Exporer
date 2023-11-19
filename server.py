@@ -207,7 +207,6 @@ def apply_job():
     application_id = str(uuid.uuid4()).replace('-', '')[:20]  # 生成唯一的 application ID
     current_date = datetime.now().date()
 
-    # 插入新的应聘记录到 APPLY 表
     try:
         g.conn.execute(text("""
             INSERT INTO APPLY (application_id, job_id, person_id, start_date, status, last_update_date)
@@ -225,10 +224,91 @@ def apply_job():
         g.conn.rollback()
         return jsonify({'error': str(e)}), 500
 
-@app.route('/jobinfo/<job_id>')
+@app.route('/jobinfo/int:<job_id>')
 def jobinfo(job_id):
-    return render_template('jobinfo.html')
-   
+    cursor = g.conn.execute(text('''
+    select j.job_title, j.url, j.required_skills, j.preferred_skills, j.min_salary, j.max_salary, j.duration, l.country, l.state, l.city, l.census_info, l.geo_info, l.climate_info, e.company_id, e.email, e.phone, e.address, e.websites, e.company_role, e. status, e.last_update_date
+    from job_post j, location l, HR h, availableat a, employee e
+    where j.job_id = :job_id and j.job_id = a.job_id and a.location_id = l.location_id and j.person_id = h.person_id and h.person_id = e.person_id
+    '''),{'job_id':job_id})
+    jobDetails = cursor.fetchone()
+    com_id = jobDetails[13]
+    print(com_id)
+    cursor.close()
+    cursor = g.conn.execute(text('''
+    select c.company_name, c.company_size_level, c.sites, l.country, l.state, l.city, l.census_info, l.geo_info, l.climate_info, i.industry_name
+    from industry i, comp_indus c, sitat s, location l
+    where c.company_id = :com_id and c.industry_id = i.industry_id and s.company_id = c.company_id and s.location_id = l.location_id
+    '''),{'com_id':com_id})
+    companyDatails = cursor.fetchone()
+    #print(companyDatails)
+    cursor.close()
+    cursor = g.conn.execute(text('''
+    select e.person_id, e.email, e.phone, e.address, e.websites, e.company_role, e.status, e.last_update_date
+    from employee e
+    where e.company_id = :com_id
+    '''),{'com_id':com_id})
+    employeeDatails = cursor.mappings().all()
+    cursor.close()
+    if jobDetails is not None:
+      print(jobDetails)
+      print(employeeDatails)
+    if jobDetails is None:
+        return "job not found", 404
+    context = dict(
+       job = jobDetails,
+       employees = employeeDatails,
+       company = companyDatails
+    )
+    return render_template('jobinfo.html',**context)
+
+@app.route('/refer', methods=['POST'])
+def refer():
+    data = request.get_json()
+    person_id = data['person_id']
+    job_id = data['job_id']
+    ref_type = data['ref_type']
+    applicant_id = session['personID']
+    ng = False
+    senior = False
+    intern = False
+    ref_id = str(uuid.uuid4()).replace('-', '')[:20]
+    current_date = datetime.now().date()
+    if ref_type == "ng":
+       ng = True
+    elif ref_type == "senior":
+       senior = True
+    elif ref_type == "intern":
+       intern = True
+    g.conn.execute(text("""
+        INSERT INTO Ref_Provide (ref_id, person_id,applicant_id,last_update_date, accept_intern, accept_ng, accept_senior)
+        VALUES (:ref_id, :person_id, :applicant_id, :last_update_date, :intern, :ng, :senior)
+    """), {
+        'ref_id': ref_id,
+        'applicant_id': applicant_id,
+        'person_id': person_id,
+        'last_update_date': current_date,
+        'intern': intern,
+        'ng': ng,
+        'senior': senior
+    })
+    g.conn.commit()
+    return jsonify(status="referred")
+
+@app.route('/release', methods=['POST'])
+def release():
+    if 'personID' not in session:
+      return render_template('index.html')
+    data = request.get_json()
+    applicant_id = session['personID']
+    person_id = data['person_id']
+    job_id = data['job_id']
+    ref_type = data['ref_type']
+    column_name = "accept_" + ref_type
+    g.conn.execute(text(f"DELETE FROM Ref_Provide WHERE person_id=:person_id and applicant_id=:applicant_id and {column_name}=True"), {'person_id':person_id,'applicant_id': applicant_id})
+    g.conn.commit()
+    return jsonify(status="released")
+
 @app.route('/track')
 def track():
   if 'personID' not in session:
@@ -283,9 +363,9 @@ def deleteApplyRecord(application_id):
     try:
         g.conn.execute(text("DELETE FROM Apply WHERE application_id = :application_id"), {'application_id': application_id})
         g.conn.commit()
-        return '', 204  # 返回 204 No Content 表示成功删除
+        return '', 204
     except Exception as e:
-        print(e)  # 在生产环境中，应该使用更合适的错误处理
+        print(e)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/addApplyRecord/<application_id>')

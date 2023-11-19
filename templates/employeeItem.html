@@ -1,0 +1,71 @@
+<!-- applyItem.html -->
+<div class="row mb-3">
+    <div class="col-md-3 d-flex align-items-center justify-content-center">
+        {{employee['email']}}
+    </div>
+    <div class="col-md-3 d-flex align-items-center justify-content-center">
+        {{employee['phone']}}
+    </div>
+    <div class="col-md-2 d-flex align-items-center justify-content-center">
+        {{employee['company_role']}}
+    </div>
+    <div class="col-md-2 d-flex align-items-center justify-content-center">
+        {{employee['status']}}
+    </div>
+    <div class="col-md-2 d-flex align-items-center justify-content-center">
+        {{employee['last_update_date']}}
+    </div>
+    <!--
+         <div class="col-md-1 d-flex align-items-center justify-content-center">
+        <button onclick="referRelease(this, '{{ employee['person_id'] }}', '{{ job['job_id'] }}', 'intern')">
+            {{ 'Release' if employee['accept_intern'] else 'Refer' }}
+        </button>
+    </div>
+    <div class="col-md-1 d-flex align-items-center justify-content-center">
+        <button onclick="referRelease(this, '{{ employee['person_id'] }}', '{{ job['job_id'] }}', 'ng')">
+            {{ 'Release' if employee['accept_ng'] else 'Refer' }}
+        </button>
+    </div>  
+    <div class="col-md-1 d-flex align-items-center justify-content-center">
+        <button onclick="referRelease(this, '{{ employee['person_id'] }}', '{{ job['job_id'] }}', 'senior')">
+            {{ 'Release' if employee['accept_senior'] else 'Refer' }}
+        </button>
+    </div>
+    -->
+   
+    
+    
+    
+</div>
+
+<script>
+    function referRelease(btn, personId, jobId, refType) {
+        var isRefer = btn.textContent.includes('Refer');
+        var action = isRefer ? 'refer' : 'release';
+        var url = `/${action}`;
+        var data = { 
+            'person_id': personId, 
+            'job_id': jobId, 
+            'ref_type': refType, 
+            'is_refer': isRefer 
+        };
+    
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'referred') {
+                btn.textContent = 'Release';
+            } else {
+                btn.textContent = 'Refer';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+    
