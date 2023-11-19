@@ -244,11 +244,15 @@ def jobinfo(job_id):
     #print(companyDatails)
     cursor.close()
     cursor = g.conn.execute(text('''
-    select e.person_id, e.email, e.phone, e.address, e.websites, e.company_role, e.status, e.last_update_date
-    from employee e
+    select distinct e.person_id, e.email, e.phone, e.address, e.websites, e.company_role, e.status, e.last_update_date, 
+                                   r.accept_intern, r.accept_ng, r.accept_senior
+    from employee e LEFT JOIN ref_provide r on e.person_id = r.person_id
     where e.company_id = :com_id
     '''),{'com_id':com_id})
     employeeDatails = cursor.mappings().all()
+    employeeDatails = [dict(row) for row in employeeDatails]
+    for i in employeeDatails:
+       i['ref_type'] = ','.join(job_type for job_type in ['intern', 'ng', 'senior'] if i[f'accept_{job_type}'])
     cursor.close()
     if jobDetails is not None:
       print(jobDetails)
