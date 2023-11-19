@@ -24,6 +24,14 @@
       b {
         color: #ffcbdb; 
       }
+      #page-controller button{
+        display: inline-block;
+      }
+      #page-controller p{
+        display: inline-block;
+        margin: 0 10px;
+      }
+
     </style>
     
     <meta charset="utf-8">
@@ -45,7 +53,13 @@
           </div>
         </div>
         <div class="text-center">
+            <div id="page-controller">   
+              <a href={{previous_page_link}} {{hide_previous_page_link}}><button type="button" class="btn" ><<</button></a>
+              <p>{{page}}</p>
+              <a href={{next_page_link}}><button type="button" class="btn">>></button></a>
+            </div>
             <button type="button" class="btn btn-outline-success">Contact US</button>
+
         </div>
     </div>
   </body>

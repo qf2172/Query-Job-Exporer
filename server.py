@@ -35,7 +35,7 @@ app.secret_key = 'your_secret_key'
 #
 DATABASEURI = "postgresql://yz4326:442835@34.74.171.121/proj1part2"
 RECOMMENDATION_CONFIG = utils.RECOMMENDATION_CONFIG
-
+ITEMS_PER_PAGE = 10
 #
 # This line creates a database engine that knows how to connect to the URI above.
 #
@@ -124,7 +124,17 @@ def dashboard():
 
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
-  cursor = g.conn.execute(text("SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration FROM Job_Post"))
+  if 'page' not in request.args:
+    page = 1
+  else:
+    try:
+      page = int(request.args['page'])
+    except:
+      page = 1
+  cursor = g.conn.execute(text("""SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
+                                  FROM Job_Post
+                                  LIMIT :limit OFFSET :offset
+                               """), {'limit': ITEMS_PER_PAGE, 'offset': (page - 1) * ITEMS_PER_PAGE})
   g.conn.commit()
   jobItems = cursor.mappings().all()
   cursor.close()
@@ -134,7 +144,11 @@ def dashboard():
   cursor.close()
   context = dict(
       data=jobItems[:10],
-      applied_jobs=applied_jobs
+      applied_jobs=applied_jobs,
+      page = page,
+      hide_previous_page_link = "hidden" if page == 1 else "",
+      previous_page_link = "/dashboard?page=" + str(page - 1) if page > 1 else None,
+      next_page_link = "/dashboard?page=" + str(page + 1) if len(jobItems) == ITEMS_PER_PAGE else None
   )
   return render_template("dashboard.html", **context)
 
@@ -154,7 +168,20 @@ def jobsearch():
   """
 
   # DEBUG: this is debugging code to see what request looks like
+  if 'page' not in request.args:
+    page = 1
+  else:
+    try:
+      page = int(request.args['page'])
+    except:
+      page = 1
   print(request.form)
+  if request.form:
+     session['form'] = request.form
+  elif 'form' in session:
+      request.form = session['form']
+  else:
+      request.form = defaultdict(str)
   min_salary = request.form['minsalary'] if request.form['minsalary'] else 0
   max_salary = request.form['maxsalary'] if request.form['maxsalary'] else 'Infinity'
   if "useregex" not in request.form or request.form["useregex"] == "off":
@@ -163,11 +190,14 @@ def jobsearch():
                                 FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
                                 WHERE job_title LIKE :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
                                         {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}    
-                            """), {
+                                LIMIT :limit OFFSET :offset
+                                """), {
                                   'job_title': '%' + request.form['jobtitle'] + '%',
                                   'location': request.form['location'],
                                   'min_salary': min_salary,
-                                  'max_salary': max_salary
+                                  'max_salary': max_salary,
+                                  'limit': ITEMS_PER_PAGE,
+                                  'offset': (page - 1) * ITEMS_PER_PAGE
                                 })
   else:
     cursor = g.conn.execute(text(f"""
@@ -175,11 +205,14 @@ def jobsearch():
                                 FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
                                 WHERE job_title ~ :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
                                         {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}
+                                LIMIT :limit OFFSET :offset
                                 """), {
                                   'job_title': request.form['jobtitle'],
                                   'location': request.form['location'],
                                   'min_salary': min_salary,
-                                  'max_salary': max_salary
+                                  'max_salary': max_salary,
+                                  'limit': ITEMS_PER_PAGE,
+                                  'offset': (page - 1) * ITEMS_PER_PAGE
                                 })
   g.conn.commit()
   jobItems = cursor.mappings().all()
@@ -190,7 +223,11 @@ def jobsearch():
   cursor.close()
   context = dict(
       data=jobItems[:10],
-      applied_jobs=applied_jobs
+      applied_jobs=applied_jobs,
+      page = page,
+      hide_previous_page_link = "hidden" if page == 1 else "",
+      previous_page_link = "/jobsearch?page=" + str(page - 1) if page > 1 else None,
+      next_page_link = "/jobsearch?page=" + str(page + 1) if len(jobItems) == ITEMS_PER_PAGE else None
   )
   return render_template("dashboard.html", **context)
 
