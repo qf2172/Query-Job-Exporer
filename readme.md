@@ -1,9 +1,17 @@
 # 4111 Project1 Part3
+## Database and Server Information
+- Database: PostgreSQL
+  - username: yz4326
+  - password: 442835
+- Server:
+
 ## Brief Description
 QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
 
 Our users will have the flexibility to fine-tune their job searches using a variety of filter options, including location, company, and job title. Moreover, our application incorporates a sophisticated tracking system that enables users to maintain a comprehensive
 history of their previous job applications and offers job recommendations. 
+
+Nonetheless, to prevent SQL injection, we decided not to follow our design that allows users to directly query the database with SQL queries.
 ## Built With
 + Frontend
   - HTML/CSS
