@@ -1,9 +1,9 @@
 # 4111 Project1 Part3
 ## Brief Description
-** QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
+QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
 
 Our users will have the flexibility to fine-tune their job searches using a variety of filter options, including location, company, and job title. Moreover, our application incorporates a sophisticated tracking system that enables users to maintain a comprehensive
-history of their previous job applications and offers job recommendations. **
+history of their previous job applications and offers job recommendations. 
 ## Built With
 + Frontend
   - HTML/CSS
@@ -64,15 +64,16 @@ Charisse_Lowery@outlook.com
 * Apply table, Job_Post table included
 
 ### Recommendation Module
-
+![](static/recommendation.jpg)
 In this project, we have developed a recommender system designed to assist applicants in identifying more fitting job opportunities. Our recommendation process hinges on the analysis of an applicant's past applications. By leveraging information from previous applications, we identify the most analogous applicants and subsequently suggest jobs that align with the preferences and patterns of these similar candidates.
 
 Given that applicants may have submitted multiple applications, our system places emphasis on the active applications that have been most recently updated. This prioritization is rooted in the belief that these updated applications better reflect users' current preferences and provide more accurate indications of potential matches.
 
 To achieve this, our recommender system employs a metric of similarity based on job titles, required skills, and preferred skills across previously applied job posts and other opportunities. The weighted cosine similarity is the chosen method for measuring the similarity between two job posts. Notably, the three features—job titles, required skills, and preferred skills—are assigned distinct weights to mirror their varying importance in real-world scenarios. This approach ensures a nuanced and comprehensive assessment of similarity, contributing to more refined and relevant job recommendations.
-### Connect Module?
 
+### Usage of AI tools
 
+In this project, we did not use any AI tools. We uses the weighted similarity of scipy for recommendation because of its robustness and simplicity.
 
 
 
