@@ -335,7 +335,7 @@ def refer():
     })
     g.conn.commit()
     return jsonify(status="referred")
-
+'''
 @app.route('/release', methods=['POST'])
 def release():
     if 'personID' not in session:
@@ -349,6 +349,8 @@ def release():
     g.conn.execute(text(f"DELETE FROM Ref_Provide WHERE person_id=:person_id and applicant_id=:applicant_id and {column_name}=True"), {'person_id':person_id,'applicant_id': applicant_id})
     g.conn.commit()
     return jsonify(status="released")
+'''
+
 
 @app.route('/track')
 def track():
@@ -409,9 +411,6 @@ def deleteApplyRecord(application_id):
         print(e)
         return jsonify({'error': str(e)}), 500
 
-@app.route('/addApplyRecord/<application_id>')
-def addApplyRecord(application_id):
-   return render_template('addApplyRecord.html')
 
 @app.route('/recommendations')
 def recommendations():

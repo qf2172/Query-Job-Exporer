@@ -50,7 +50,7 @@ Charisse_Lowery@outlook.com
 ![openPosition](static/openPositionPage.png)
 * User can click the apply button to record that they have applied to that job.
 * Once a apply button is clicked, it will be disenabled. If you click it by mistake, you need to go to the Track page to delete it. After you delete it, the apply button will be enabled again.
-* advice1: Just display the job name and location(country,state,city) on this page because they are often not empty. Add a link to jobInfo page, in jobInfor Page, list the job's required skills, preferred skills and min/max salary.But I don't know how to include the company, industry, hr, referral.
+* Userin jobInfor Page, list the job's required skills, preferred skills and min/max salary.But I don't know how to include the company, industry, hr, referral.
 * advice2: We need to implement search function.
 * Table Included: 
   - Apply: if user click apply, we will generate a tuple and insert it into the Apply table.
