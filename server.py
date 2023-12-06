@@ -132,13 +132,13 @@ def dashboard():
     except:
       page = 1
   cursor = g.conn.execute(text("""SELECT job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
-                                  FROM Job_Post
+                                  FROM new_Job_Post
                                   LIMIT :limit OFFSET :offset
                                """), {'limit': ITEMS_PER_PAGE, 'offset': (page - 1) * ITEMS_PER_PAGE})
   g.conn.commit()
   jobItems = cursor.mappings().all()
   cursor.close()
-  cursor = g.conn.execute(text("SELECT job_id FROM Apply WHERE person_id = :person_id"), {'person_id': session.get('personID')})
+  cursor = g.conn.execute(text("SELECT job_id FROM new_Apply WHERE person_id = :person_id"), {'person_id': session.get('personID')})
   applied_jobsmap = cursor.mappings().all()
   applied_jobs = [row['job_id'] for row in applied_jobsmap]
   cursor.close()
@@ -187,7 +187,7 @@ def jobsearch():
   if "useregex" not in request.form or request.form["useregex"] == "off":
     cursor = g.conn.execute(text(f"""
                                 SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
-                                FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
+                                FROM new_Job_Post Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
                                 WHERE job_title LIKE :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
                                         {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}    
                                 LIMIT :limit OFFSET :offset
@@ -202,7 +202,7 @@ def jobsearch():
   else:
     cursor = g.conn.execute(text(f"""
                                 SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
-                                FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
+                                FROM new_Job_Post Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
                                 WHERE job_title ~ :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
                                         {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}
                                 LIMIT :limit OFFSET :offset
@@ -217,7 +217,7 @@ def jobsearch():
   g.conn.commit()
   jobItems = cursor.mappings().all()
   cursor.close()
-  cursor = g.conn.execute(text("SELECT job_id FROM Apply WHERE person_id = :person_id"), {'person_id': session.get('personID')})
+  cursor = g.conn.execute(text("SELECT job_id FROM new_Apply WHERE person_id = :person_id"), {'person_id': session.get('personID')})
   applied_jobsmap = cursor.mappings().all()
   applied_jobs = [row['job_id'] for row in applied_jobsmap]
   cursor.close()
@@ -246,7 +246,7 @@ def apply_job():
 
     try:
         g.conn.execute(text("""
-            INSERT INTO APPLY (application_id, job_id, person_id, start_date, status, last_update_date)
+            INSERT INTO new_APPLY (application_id, job_id, person_id, start_date, status, last_update_date)
             VALUES (:application_id, :job_id, :person_id, :start_date, 'Pending', :last_update_date)
         """), {
             'application_id': application_id,
@@ -265,7 +265,7 @@ def apply_job():
 def jobinfo(job_id):
     cursor = g.conn.execute(text('''
     select j.job_title, j.url, j.required_skills, j.preferred_skills, j.min_salary, j.max_salary, j.duration, l.country, l.state, l.city, l.census_info, l.geo_info, l.climate_info, e.company_id, e.email, e.phone, e.address, e.websites, e.company_role, e. status, e.last_update_date
-    from job_post j, location l, HR h, availableat a, employee e
+    from new_job_post j, location l, newHR h, new_availableat a, newemployee e
     where j.job_id = :job_id and j.job_id = a.job_id and a.location_id = l.location_id and j.person_id = h.person_id and h.person_id = e.person_id
     '''),{'job_id':job_id})
     jobDetails = cursor.fetchone()
@@ -283,7 +283,7 @@ def jobinfo(job_id):
     cursor = g.conn.execute(text('''
     select distinct e.person_id, e.email, e.phone, e.address, e.websites, e.company_role, e.status, e.last_update_date, 
                                    r.accept_intern, r.accept_ng, r.accept_senior
-    from employee e LEFT JOIN ref_provide r on e.person_id = r.person_id
+    from newemployee e LEFT JOIN ref_provide r on e.person_id = r.person_id
     where e.company_id = :com_id
     '''),{'com_id':com_id})
     employeeDatails = cursor.mappings().all()
@@ -322,7 +322,7 @@ def refer():
     elif ref_type == "intern":
        intern = True
     g.conn.execute(text("""
-        INSERT INTO Ref_Provide (ref_id, person_id,applicant_id,last_update_date, accept_intern, accept_ng, accept_senior)
+        INSERT INTO new_Ref_Provide (ref_id, person_id,applicant_id,last_update_date, accept_intern, accept_ng, accept_senior)
         VALUES (:ref_id, :person_id, :applicant_id, :last_update_date, :intern, :ng, :senior)
     """), {
         'ref_id': ref_id,
@@ -358,7 +358,7 @@ def track():
      return render_template('index.html')
   sql_query = text("""
     SELECT j.job_id, j.job_title, a.start_date, a.status, a.last_update_date, a.application_id 
-    FROM Job_Post j, Apply a 
+    FROM new_Job_Post j, new_Apply a 
     WHERE a.person_id = :person_id 
     AND j.job_id = a.job_id
 """)
@@ -372,7 +372,7 @@ def track():
 
 @app.route('/editApplyRecord/<application_id>')
 def editApplyRecord(application_id):
-    cursor = g.conn.execute(text("SELECT * FROM Apply WHERE application_id = :application_id"), {'application_id': application_id})
+    cursor = g.conn.execute(text("SELECT * FROM new_Apply WHERE application_id = :application_id"), {'application_id': application_id})
     application = cursor.fetchone()
     cursor.close()
     if application is not None:
@@ -391,7 +391,7 @@ def saveApplyRecord(application_id):
     last_update_date = request.form['last_update_date']
     try:
         g.conn.execute(text("""
-            UPDATE Apply SET status = :status, start_date = :start_date, last_update_date = :last_update_date WHERE application_id = :application_id
+            UPDATE new_Apply SET status = :status, start_date = :start_date, last_update_date = :last_update_date WHERE application_id = :application_id
         """), {'status': status, 'start_date': start_date, 'last_update_date': last_update_date, 'application_id': application_id})
         g.conn.commit()
         return jsonify({'success': True})
@@ -404,7 +404,7 @@ def deleteApplyRecord(application_id):
     if 'personID' not in session:
       return render_template('index.html')
     try:
-        g.conn.execute(text("DELETE FROM Apply WHERE application_id = :application_id"), {'application_id': application_id})
+        g.conn.execute(text("DELETE FROM new_Apply WHERE application_id = :application_id"), {'application_id': application_id})
         g.conn.commit()
         return '', 204
     except Exception as e:
@@ -420,7 +420,7 @@ def recommendations():
   # print(session.get('personID'))
   sql_query = text(f"""
     SELECT j.job_id, j.job_title, j.required_skills, j.preferred_skills
-    FROM Job_Post j, Apply a 
+    FROM new_Job_Post j, new_Apply a 
     WHERE a.person_id = :person_id 
     AND j.job_id = a.job_id
     ORDER BY last_update_date DESC
@@ -432,13 +432,25 @@ def recommendations():
   cursor.close()
   # print(results_list)
   extracted_values = [[value for value in tup[1:] if value is not None] for tup in results_list]
+  print(extracted_values)
   job_list = [tup[0] for tup in results_list]
-  job_based_required_skills = set(skill for job in results_list if job[2] is not None for skill in job[2].split(','))
-  job_based_preferred_skills = set(skill for job in results_list if job[3] is not None for skill in job[3].split(','))
-  job_based_title_word_bag = set(word for job in results_list if job[1] is not None for word in job[1].split(' '))
-  
+  print(results_list[1][2][0])
+  job_based_required_skills = set(skill for job in results_list if job[2] is not None for skill in job[2])
+  job_based_preferred_skills = set(skill for job in results_list if job[3] is not None for skill in job[3])
+  job_based_title_word_bag = set(word for job in results_list if job[1] is not None for word in job[1])
+  print(job_based_preferred_skills)
+  print(job_based_required_skills)
+  print(job_based_title_word_bag)
+  def flatten(l):
+    for el in l:
+        if isinstance(el, list):
+            yield from flatten(el)
+        else:
+            yield el
   # Join the inner lists into strings and then join these strings into one large string
-  target_string = ' '.join([' '.join(sublist) for sublist in extracted_values])
+  flat_list = list(flatten(extracted_values))
+  target_string = ' '.join(flat_list)
+  #target_string = ' '.join([' '.join(sublist) for sublist in extracted_values])
   # print(job_list)
   # print(target_string)
   if job_list:
@@ -449,7 +461,7 @@ def recommendations():
   # model = SentenceTransformer('all-MiniLM-L6-v2')
   sql_query = text("""
     SELECT *
-    FROM Job_Post j
+    FROM new_Job_Post j
     where j.job_id not in :jobtuple
 """)
   cursor = g.conn.execute(sql_query,{'jobtuple':job_tuple})

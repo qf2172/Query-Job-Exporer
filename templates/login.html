@@ -2,6 +2,80 @@
 <html>
 <head>
     <title>Login</title>
+    <style>
+        body {
+            background-color: #f6eaf6; /* Softer pink background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            background-color: rgba(255, 182, 193, 0.5); /* Light pink glass effect */
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            width: 500px;
+            padding: 40px;
+            margin: 50px auto;
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .welcome-text {
+        font-size: 2em; /* 更大的字体大小 */
+        margin-bottom: 10px;
+        color: #ff1493; /* Darker pink */
+        font-family: 'Georgia', serif; /* 使用更具特色的字体 */
+        text-shadow: 1px 1px 2px #d63384; /* 添加文字阴影以增强视觉效果 */
+        font-weight: bold; /* 加粗字体 */
+}
+
+
+.slogan {
+    font-size: 1.2em; /* Slightly larger font size */
+    color: #d63384; /* Keeping the color */
+    margin-bottom: 40px;
+    font-weight: bold; /* Making the text bold */
+    font-style: italic; /* Adding italics for emphasis */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Adding a subtle shadow for depth */
+}
+
+
+
+        h1 {
+            color: #ff69b4; /* Brighter pink */
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .login-form input[type="email"], .login-form input[type="submit"] {
+            width: 80%;
+            padding: 12px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            border: 2px solid #ff69b4;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+        }
+
+        .login-form input[type="submit"] {
+            width: 20%;
+            background-color: #ff69b4; /* Brighter pink */
+            color: white;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .login-form input[type="submit"]:hover {
+            background-color: #ff1493; /* Darker pink */
+        }
+
+        a {
+            color: #ff1493;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
@@ -11,11 +85,15 @@
     {% endwith %}
 </head>
 <body>
-    <h1>Login</h1>
-    <form method="post">
-        <input type="email" name="userEmail" placeholder="2259558831@qq.com" required>
-        <input type="submit" value="Login">
-    </form>
-    <a href="{{ url_for('signup') }}">Sign Up</a>
+    <div class="login-container">
+        <div class="welcome-text">Welcome to QueryJob Explorer</div>
+        <div class="slogan">Navigate Your Career Path with Precision - QueryJob Explorer, Your Gateway to Ideal Opportunities</div>
+        <h1>Login</h1>
+        <form method="post" class="login-form">
+            <input type="email" name="userEmail" placeholder="2259558831@qq.com" required>
+            <input type="submit" value="Login">
+        </form>
+        <a href="{{ url_for('signup') }}">Sign Up</a>
+    </div>
 </body>
 </html>

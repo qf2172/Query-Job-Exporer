@@ -9,8 +9,6 @@
 QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
 
 Our users will have the flexibility to fine-tune their job searches using a variety of filter options, including location, salary, and job title. Moreover, our application incorporates a sophisticated tracking system that enables users to maintain a comprehensive history of their previous job applications and offers job recommendations. 
-
-Nonetheless, to prevent SQL injection, we decided not to follow our design that allows users to directly query the database with SQL queries.
 ## Built With
 + Frontend
   - HTML/CSS
@@ -42,14 +40,11 @@ Nonetheless, to prevent SQL injection, we decided not to follow our design that 
 
 * Why interesting? The Recommendation Module stands out for its implementation of a personalized job recommender system. It leverages the history of a user's job applications to suggest suitable new positions, embodying a smart use of data analytics. The system prioritizes recent and active applications, reflecting the assumption that these more accurately represent current user preferences. What makes it particularly interesting is the use of weighted cosine similarity to determine job recommendations. This method considers job titles, required skills, and preferred skills with different weights, indicating a sophisticated algorithmic approach. It showcases the application's ability to provide tailored suggestions based on nuanced user behavior and preferences.
 
-### Usage of AI tools
-
-In this project, we did not use any AI tools. We uses the weighted similarity of scipy for recommendation because of its robustness and simplicity.
-
 ## Other Screen Shots
 
 ### Home Page/Sign Up/Log in
 ![homePage](static/homepage.png)
+![signup](static/signPage.png)
 ![login](static/loginPage.png)
 * Use the existing user email to login: 
 Charisse_Lowery@outlook.com
@@ -57,7 +52,7 @@ Charisse_Lowery@outlook.com
 * Applicants table included.
 
 ### Overview
-![overview](static/overviewPage.png)
+![overview](static/openPositions.png)
 * Once a user login successfully, he or she will see this page.
 
 ### My Profile
@@ -79,8 +74,10 @@ Charisse_Lowery@outlook.com
 * The user can click the edit to go to the editApplyRecord.html page to edit and save. 
 * The user can also click the delete button to delete the application. Just get the application_id to delete the tuple in Apply table.
 
-![track](static/trackEdit.png)
+![](static/trackEdit.png)
 * The user can edit and save the status, start date and last update date of the application. When the user click button save, we will use the application_id to find the correspounding application in Apply table and update its information. After the modivication and saving it correctly, user can click back to go to the track page. The track page will reload the application related to the user.
 
+### About Us Module
 
+![](static/aboutus.png)
 

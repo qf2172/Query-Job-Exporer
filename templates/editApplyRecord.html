@@ -4,6 +4,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <title>QuanFang Page</title>
+    <style>
+        body {
+            background-color: #f6eaf6; /* Soft pink background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 192, 203, 0.5); /* Light pink with transparency */
+            backdrop-filter: blur(10px); /* Glass effect */
+            border-radius: 15px;
+            padding: 20px;
+            margin: 40px auto; /* Adjust as needed */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            color: #fff; /* White text */
+        }
+
+        .form-group label {
+            margin-top: 10px;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid #ff69b4; /* Pink border */
+            color: #000; /* Black text */
+        }
+
+        .btn-primary {
+            background-color: #ff69b4;
+            border-color: #ff69b4;
+        }
+
+        .btn-secondary {
+            background-color: #ff1493;
+            border-color: #ff1493;
+        }
+
+        #message {
+            margin-top: 15px;
+        }
+    </style>
   </head>
   <body>
     {% include 'nav.html' %}
@@ -22,9 +63,13 @@
                 <label for="last_update_date">Last Update Date</label>
                 <input type="date" class="form-control" id="last_update_date" name="last_update_date" value="{{ data['last_update_date']}}">
             </div>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <div class="d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
         </form>
-        <button onclick="redirectToDashboard()" class="btn btn-secondary">Back</button>
+        <div class="d-flex justify-content-center mt-3">
+            <button onclick="redirectToDashboard()" class="btn btn-secondary">Back</button>
+        </div>
         <div id="message"></div>
     </div>
     <script>

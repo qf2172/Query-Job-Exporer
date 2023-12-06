@@ -1,16 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #f6eaf6; /* Softer pink background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .glass-panel {
+            background-color: rgba(255, 182, 193, 0.5); /* Light pink glass effect */
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            width: 80%;
+            max-width: 800px;
+            padding: 40px;
+            margin: 50px auto;
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #ff69b4; /* Brighter pink */
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            background-color: #ff69b4; /* Brighter pink */
+            color: white;
+            text-decoration: none;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #ff1493; /* Darker pink */
+        }
+
+        .description {
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.4); /* Slightly more opaque for better readability */
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 1em; /* Larger font size for better readability */
+    line-height: 1.6; /* Improved line height for better text flow */
+    color: #333; /* Darker text color for contrast */
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1); /* More pronounced shadow for depth */
+    text-align: justify; /* Justify text for a clean, polished look */
+    max-width: 600px; /* Maximum width for better line length */
+    margin-left: auto; /* Center the description box horizontally */
+    margin-right: auto;
+    font-family: 'Georgia', serif; /* A more elegant font */
+}
+
+/* Extra styling for the paragraph tags within the description class */
+.description p {
+    margin-bottom: 1em; /* Add some space between paragraphs */
+}
+
+/* Styling for links to make them integrate better with the text */
+a.button {
+    color: #fff;
+    background: #ff69b4;
+    border: 2px solid transparent;
+    text-transform: uppercase; /* Make the text uppercase for a more button-like appearance */
+    font-weight: bold; /* Bold font for emphasis */
+    letter-spacing: 1px; /* Spacing between letters for a refined look */
+}
+
+/* Hover effect for links */
+a.button:hover {
+    background: #ff1493;
+    border-color: #ff69b4; /* Add a border color on hover */
+}
+
+    </style>
+    <title>Home Page - QueryJob Explorer</title>
 </head>
 <body>
-    <h1>Welcome to the Home Page</h1>
-    {% if 'username' in session %}
-        <p>Logged in as {{ session['userEmail'] }}</p>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    {% else %}
-        <a href="{{ url_for('login') }}">Login</a> |
-        <a href="{{ url_for('signup') }}">Sign Up</a>
-    {% endif %}
+    <div class="glass-panel">
+        <h1>Welcome to QueryJob Explorer</h1>
+        {% if 'username' in session %}
+            <p>Logged in as {{ session['userEmail'] }}</p>
+            <a href="{{ url_for('logout') }}" class="button">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="button">Login</a> |
+            <a href="{{ url_for('signup') }}" class="button">Sign Up</a>
+        {% endif %}
+        <p class="description">
+            QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
+            <br><br>
+            Our users will have the flexibility to fine-tune their job searches using a variety of filter options, including location, salary, and job title. Moreover, our application incorporates a sophisticated tracking system that enables users to maintain a comprehensive history of their previous job applications and offers job recommendations.
+        </p>
+    </div>
 </body>
 </html>
