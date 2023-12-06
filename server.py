@@ -200,20 +200,23 @@ def jobsearch():
                                   'offset': (page - 1) * ITEMS_PER_PAGE
                                 })
   else:
-    cursor = g.conn.execute(text(f"""
-                                SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
-                                FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
-                                WHERE job_title ~ :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
-                                        {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}
-                                LIMIT :limit OFFSET :offset
-                                """), {
-                                  'job_title': request.form['jobtitle'],
-                                  'location': request.form['location'],
-                                  'min_salary': min_salary,
-                                  'max_salary': max_salary,
-                                  'limit': ITEMS_PER_PAGE,
-                                  'offset': (page - 1) * ITEMS_PER_PAGE
-                                })
+    try:
+      cursor = g.conn.execute(text(f"""
+                                  SELECT distinct Job_Post.job_id, job_title, url, required_skills, preferred_skills, min_salary, max_salary, duration 
+                                  FROM Job_Post LEFT JOIN availableat ON Job_Post.job_id = availableat.job_id LEFT JOIN location ON availableat.location_id = location.location_id
+                                  WHERE job_title ~ :job_title AND min_salary >= :min_salary AND max_salary <= :max_salary
+                                          {"AND (city ~ :location OR state ~ :location OR country ~ :location OR concat(city,',',state,',',country) ~:location OR concat(state,',',country)~:location)" if request.form['location'] else ''}
+                                  LIMIT :limit OFFSET :offset
+                                  """), {
+                                    'job_title': request.form['jobtitle'],
+                                    'location': request.form['location'],
+                                    'min_salary': min_salary,
+                                    'max_salary': max_salary,
+                                    'limit': ITEMS_PER_PAGE,
+                                    'offset': (page - 1) * ITEMS_PER_PAGE
+                                  })
+    except:
+      return redirect("/dashboard", code=302)
   g.conn.commit()
   jobItems = cursor.mappings().all()
   cursor.close()
