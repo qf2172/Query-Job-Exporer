@@ -301,7 +301,7 @@ def jobinfo(job_id):
        employees = employeeDatails,
        company = companyDatails
     )
-    return render_template('jobinfo.html',**context)
+    return render_template('jobInfo.html',**context)
 
 @app.route('/refer', methods=['POST'])
 def refer():
