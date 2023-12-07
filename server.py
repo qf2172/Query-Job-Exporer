@@ -16,6 +16,7 @@ from flask import Flask, jsonify,request, render_template, g, redirect, Response
 import uuid
 from datetime import datetime
 import utils
+import json
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -29,11 +30,10 @@ app.secret_key = 'your_secret_key'
 #
 #     postgresql://USER:PASSWORD@34.75.94.195/proj1part2
 #
-# For example, if you had username gravano and password foobar, then the following line would be:
-#
-#     DATABASEURI = "postgresql://gravano:foobar@34.75.94.195/proj1part2"
-#
-DATABASEURI = "postgresql://yz4326:442835@34.74.171.121/proj1part2"
+
+with open('config.json') as f:
+  DATABASEURI = json.load(f)['DATABASEURI']
+
 RECOMMENDATION_CONFIG = utils.RECOMMENDATION_CONFIG
 ITEMS_PER_PAGE = 10
 #

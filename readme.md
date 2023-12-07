@@ -1,9 +1,4 @@
 # 4111 Project1 Part3
-## Database and Server Information
-- Database: PostgreSQL
-  - username: yz4326
-  - password: 442835
-- Server: 34.139.213.125:8111
 
 ## Brief Description
 QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
