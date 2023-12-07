@@ -434,7 +434,7 @@ def recommendations():
   extracted_values = [[value for value in tup[1:] if value is not None] for tup in results_list]
   print(extracted_values)
   job_list = [tup[0] for tup in results_list]
-  print(results_list[1][2][0])
+  #print(results_list[1][2][0])
   job_based_required_skills = set(skill for job in results_list if job[2] is not None for skill in job[2])
   job_based_preferred_skills = set(skill for job in results_list if job[3] is not None for skill in job[3])
   job_based_title_word_bag = set(word for job in results_list if job[1] is not None for word in job[1])
