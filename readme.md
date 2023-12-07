@@ -1,4 +1,7 @@
 # 4111 Project1 Part3
+## Server Information
+- Server: http://34.73.222.106:8111/
+- YouTube: https://youtu.be/o859XZDsFwE
 
 ## Brief Description
 QueryJob Explorer is an application that streamlines the process of aggregating open job positions and maintains a comprehensive record of our job applications.
